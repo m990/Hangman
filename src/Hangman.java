@@ -26,12 +26,14 @@ public class Hangman implements ActionListener {
 	ArrayList<String> wordListInit = new ArrayList<>();
 	ArrayList<String> wordList = new ArrayList<>();
 	ArrayList<String> correctList = new ArrayList<>();
+	ArrayList<JLabel> labelList = new ArrayList<>();
 	ArrayList<Boolean> correctTF = new ArrayList<>();
 	ArrayList<String> usedLetters = new ArrayList<>();
 
 	Random r = new Random();
 
 	int lastHashLocation = 0;
+	int livesCount;
 
 	public static void main(String[] args) {
 		Hangman h = new Hangman();
@@ -50,7 +52,18 @@ public class Hangman implements ActionListener {
 
 		h.wordList = new ArrayList<>();
 
-		for (int i = 0; i < Integer.parseInt(h.wordCount); i++) {
+		int wordCount = 0;
+
+		while (wordCount <= 0 || wordCount >= 3000) {
+			try {
+				wordCount = Integer.parseInt(h.wordCount);
+				System.out.println(wordCount);
+			} catch (NumberFormatException e) {
+				JOptionPane.showMessageDialog(null, "Enter something real bro");
+			}
+		}
+
+		for (int i = 0; i < wordCount; i++) {
 			h.wordList.add(h.getWord());
 		}
 
@@ -68,15 +81,15 @@ public class Hangman implements ActionListener {
 
 		System.out.println(length);
 
-		dashesTemp = "";
-
 		for (int i = 0; i < length; i++) {
-			dashesTemp += "_ ";
+			labelList.add(new JLabel());
 		}
-
-		System.out.println(dashesTemp);
-
-		dashes.setText(dashesTemp);
+		for (int i = 0; i < length; i++) {
+			panel.add(labelList.get(i));
+		}
+		for (int i = 0; i < length; i++) {
+			labelList.get(i).setText("_");
+		}
 	}
 
 	void setLivesText() {
@@ -85,6 +98,7 @@ public class Hangman implements ActionListener {
 		int livesTemp = wc * 2;
 
 		lives.setText("You have " + livesTemp + " lives remaining.");
+		livesCount = livesTemp;
 	}
 
 	String getWord() {
@@ -122,29 +136,16 @@ public class Hangman implements ActionListener {
 			char[] letterList = word.toCharArray();
 			for (int i = 0; i < letterList.length; i++) {
 				if (letter.equals("" + letterList[i])) {
-					correctList.add("" + letterList[i]);
-					correctTF.add(true);
-					System.out.println("Letter is: " + letterList[i]);
-					String currentText = dashes.getText();
-					dashesTemp = "";
-					char[] dashesTemp1 = currentText.toCharArray();
-					for (int j = 0; j < dashesTemp1.length; j++) {
-						if (j == i) {
-							dashesTemp += letterList[i];
-						} else if (correctTF.get(i)) {
-							System.out.println("correct tf one");
-							System.out.println(correctTF);
-							dashesTemp += correctList.get(i);
-						} else {
-							dashesTemp += "_";
-						}
-					}
-					dashes.setText(dashesTemp);
-				} else {
-					correctTF.add(false);
-					correctList.add("");
+					System.out.println("in if");
+					labelList.get(i).setText("" + letterList[i]);
 				}
 			}
+		}
+		System.out.println("in else");
+		livesCount--;
+		lives.setText("You have " + livesCount + " lives remaining.");
+		if (livesCount <= 0) {
+			JOptionPane.showMessageDialog(null, "You failed.");
 		}
 	}
 }
