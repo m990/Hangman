@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.Random;
+import java.util.Stack;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,9 +24,10 @@ public class Hangman implements ActionListener {
 
 	String wordCount;
 	String dashesTemp;
+	String currentWord;
 
 	ArrayList<String> wordListInit = new ArrayList<>();
-	ArrayList<String> wordList = new ArrayList<>();
+	Stack<String> wordList = new Stack<>();
 	ArrayList<String> correctList = new ArrayList<>();
 	ArrayList<JLabel> labelList = new ArrayList<>();
 	ArrayList<Boolean> correctTF = new ArrayList<>();
@@ -50,7 +53,7 @@ public class Hangman implements ActionListener {
 		h.guessLetter.setText("Guess Letter");
 		h.setLivesText();
 
-		h.wordList = new ArrayList<>();
+		//h.wordList = new ArrayList<>();
 
 		int wordCount = 0;
 
@@ -73,11 +76,15 @@ public class Hangman implements ActionListener {
 	}
 
 	void setDashesText() {
+		correctTF.clear();
+		correctList.clear();
 		int length = 0;
-		for (String word : wordList) {
-			length += word.length();
-		}
-		System.out.println(wordList);
+		
+		currentWord = wordList.pop();
+		
+		length = currentWord.length();
+		
+		System.out.println(currentWord);
 
 		System.out.println(length);
 
@@ -128,24 +135,42 @@ public class Hangman implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		boolean cont = false;
+		boolean isCorrect = false;
 		String letter = JOptionPane.showInputDialog("Enter a letter: ");
 
 		usedLetters.add(letter);
 
-		for (String word : wordList) {
-			char[] letterList = word.toCharArray();
-			for (int i = 0; i < letterList.length; i++) {
-				if (letter.equals("" + letterList[i])) {
-					System.out.println("in if");
-					labelList.get(i).setText("" + letterList[i]);
-				}
+		
+		char[] letterList = currentWord.toCharArray();
+		for (int i = 0; i < letterList.length; i++) {
+			if (letter.equals("" + letterList[i])) {
+				isCorrect = true;
+				correctList.add(letter);
+				System.out.println("in if");
+				labelList.get(i).setText("" + letterList[i]);
 			}
 		}
-		System.out.println("in else");
-		livesCount--;
-		lives.setText("You have " + livesCount + " lives remaining.");
-		if (livesCount <= 0) {
-			JOptionPane.showMessageDialog(null, "You failed.");
+		if (!isCorrect) {
+			System.out.println("in else");
+			livesCount--;
+			lives.setText("You have " + livesCount + " lives remaining.");
+			if (livesCount <= 0) {
+				JOptionPane.showMessageDialog(null, "You failed.");
+				System.exit(0);
+			}
+		}
+		if (currentWord.length() == correctList.size()) {
+			cont = true;
+		}
+		if (cont) {
+			try {
+				setDashesText();
+			}
+			catch (EmptyStackException e1) {
+				JOptionPane.showMessageDialog(null, "You've complete this really bad game. I don't recomend you play again!");
+				System.exit(0);
+			}
 		}
 	}
 }
